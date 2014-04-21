@@ -45,13 +45,16 @@ let counterToList (c:counter) = [c.all;c.h;c.k;c.m;c.f]
 let counterIndex = ["合計"; "本人"; "家族"; "男性"; "女性"]
 
 let counterToStringList (code, name) (c:counter) =
+    let array_to_string_list = Array.toList >> List.map string in
+    let concat_with_comma = Util.Str._join "," in
     counterToList c
-    |> List.map (Array.toList >> List.map string)
-    |> List.map (Util.Str._join ",")
+    |> List.map array_to_string_list
+    |> List.map concat_with_comma
     |> List.map2 (Printf.sprintf "%s,%s,%s,%s" code name) counterIndex
     
 let counterToString (code, name) (c:counter) =
-    (Util.Str.join (counterToStringList (code, name) c) "\n") + "\n"
+    let str = counterToStringList (code, name) c |> Util.Str._join "\n" in
+    str + "\n"
 
 let total (c:counter) = c.all.[4]
 

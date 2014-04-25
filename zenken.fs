@@ -143,6 +143,10 @@ let fileToData file =
 let jnum (t:t) =
     match t.jnum with | H j | K j -> j
 
+let jnum_shibu (t:t) =
+    let f = (Util.Str.String_Take 5 >> Util.Str.take_right 2) in
+    f (jnum t)
+
 let makeMap f =
     data()
     |> Seq.map (function | On x | Off x as b -> (f x, b) | Other -> failwith "makeMap")

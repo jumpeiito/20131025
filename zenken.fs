@@ -217,18 +217,29 @@ module Statistic =
         let take2 = Util.Str.take_right 2 in
         let plus (ary:int []) =
             ary.[year] <- ary.[year] + 1;
-            ary.[8] <- ary.[8] + 1
+            ary.[8] <- ary.[8] + 1;
+            match year with
+            | y when y >= 4 ->
+                ary.[10] <- ary.[10] + 1;
+                ary.[9] <- ary.[9] + 1;
+                ignore()
+            | y when y >= 2 -> ary.[9] <- ary.[9] + 1; ignore()
+            | _ -> ignore()
         in
         plus c.all
         match t.sex, take2 t.id with
         | M, "01" -> plus c.m; plus c.h
-        | M, _   -> plus c.m; plus c.k
+        | M, _    -> plus c.m; plus c.k
         | F, "01" -> plus c.f; plus c.h
-        | F, _   -> plus c.f; plus c.k
+        | F, _    -> plus c.f; plus c.k
 
     let countCounter (c:counter) = function
         | Other -> ignore()
-        | On t | Off t -> _countCounter t c
+        | On t  -> _countCounter t c
+        | Off t ->
+            match t.right, t.flag with
+            | Cont, F0 -> _countCounter t c
+            | _ -> ignore()
 
     let countCounter_on_initial (c:counter) = function
         | Other -> ignore()
@@ -238,7 +249,7 @@ module Statistic =
             | _ -> _countCounter t c
 
     let classify (s:seq<board>) counterFunction =
-        let c = initCounter 9 in
+        let c = initCounter 11 in
         s |> Seq.iter (counterFunction c);
         c
 

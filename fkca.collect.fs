@@ -186,7 +186,7 @@ module Out =
         [0..10..70]
         |> List.map (fun n -> Printf.sprintf "被保険者%d歳台" n)
         |> Util.Str._join ","
-        |> (fun n -> n + ",被保険者合計\n")
+        |> (fun n -> n + ",被保険者合計,被保険者20歳以上,被保険者40歳以上\n")
 
     let baseTitle = baseTitle1 + baseTitle2
 

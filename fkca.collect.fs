@@ -231,10 +231,6 @@ module Out =
         _Write fseq "保健指導分会.csv" HLV.count bunkai_set hlvTitle
 
     let _all zd d =
-        // printfn "%s" "全件データ読み込み";
-        // let zd = Zenken.data() in
-        // printfn "%s" "FKCA読み込み";
-        // let d = FKCA.R172.data3() in
         printfn "%s" "基礎";
         baseShibu zd d;
         baseBunkai zd d;
@@ -250,7 +246,10 @@ module Out =
         printfn "%s" "病院月別";
         HP.write d;
 
-    let all () = _all (Zenken.data()) (FKCA.R172.data3())
+    let all () =
+        let zd = Zenken.data() |> List.ofSeq in
+        let d  = FKCA.R172.data3() |> List.ofSeq in
+        _all zd d
 
     let abbrev(shibuF, bunkaiF) =
         let d = F172.data3() in shibuF d; bunkaiF d

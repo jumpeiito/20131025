@@ -44,6 +44,13 @@ let bunkaiList =
 let counterToList (c:counter) = [c.all;c.h;c.k;c.m;c.f]
 let counterIndex = ["合計"; "本人"; "家族"; "男性"; "女性"]
 
+let counterOnlyAll (code, name) (c:counter) =
+    c.all
+    |> Array.toList
+    |> List.map string
+    |> Util.Str._join ","
+    |> (fun s -> [Printf.sprintf "%s,%s,合計,%s" code name s])
+
 let counterToStringList (code, name) (c:counter) =
     let array_to_string_list = Array.toList >> List.map string in
     let concat_with_comma = Util.Str._join "," in
@@ -176,6 +183,13 @@ module Out =
         |> Util.Str._join "\n"
         |> (fun n -> n + "\n")
 
+    let codeToString2 (zmap:Map<int,string list>) (map:Map<int,seq<F172.board>>) getf code =
+        let base' = (Base.count map.[code]) |> counterOnlyAll (string code, getf code) in
+        let (<+>) x y = x + "," + y in
+        List.map2 (<+>) base' [zmap.[code].[0]]
+        |> Util.Str._join "\n"
+        |> (fun n -> n + "\n")
+
     let baseTitle1 =
         [40..10..70]
         |> List.map (fun n -> Printf.sprintf "受診者%d歳台" n)
@@ -190,23 +204,29 @@ module Out =
 
     let baseTitle = baseTitle1 + baseTitle2
 
-    let _base zseq seq file set zmapf =
+    let _base zseq seq file set zmapf (translator:'a->'b->'c->'d->string) =
         let genList, mapf, getf = set in
         let zmap = zmapf zseq in
         let (map:Map<int,seq<F172.board>>) = mapf seq in
         writer file (fun op ->
                      op.Write baseTitle;
                      genList
-                     |> List.iter (fun code -> try (codeToString zmap map getf code |> op.Write)
+                     |> List.iter (fun code -> try (translator zmap map getf code |> op.Write)
                                                with
                                                | :? KeyNotFoundException -> ignore()) // (codeToString zmap map getf >> op.Write)
                      )
 
     let baseShibu zseq fseq =
-        _base zseq fseq "基礎支部.csv" shibu_set Zenken.Statistic.shibuMap
+        _base zseq fseq "基礎支部.csv" shibu_set Zenken.Statistic.shibuMap codeToString
 
     let baseBunkai zseq fseq =
-        _base zseq fseq "基礎分会.csv" bunkai_set Zenken.Statistic.bunkaiMap
+        _base zseq fseq "基礎分会.csv" bunkai_set Zenken.Statistic.bunkaiMap codeToString
+
+    let baseShibu2 zseq fseq =
+        _base zseq fseq "基礎支部合計.csv" shibu_set Zenken.Statistic.shibuMap codeToString2
+
+    let baseBunkai2 zseq fseq =
+        _base zseq fseq "基礎分会合計.csv" bunkai_set Zenken.Statistic.bunkaiMap codeToString2
 
     let monthTitle  = ",,,4月,5月,6月,7月,8月,9月,10月,11月,12月,1月,2月,3月,合計\n"
     let metaboTitle = ",,,基準該当,予備群該当,該当なし,判定不能,合計\n"
@@ -234,6 +254,9 @@ module Out =
         printfn "%s" "基礎";
         baseShibu zd d;
         baseBunkai zd d;
+        printfn "%s" "基礎合計";
+        baseShibu2 zd d;
+        baseBunkai2 zd d;
         printfn "%s" "月別";
         monthShibu d;
         monthBunkai d;

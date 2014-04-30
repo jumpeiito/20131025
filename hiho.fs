@@ -1,8 +1,9 @@
 module Hiho
 
-let file = "f:/20131025/00263129-201401-25.xlsx"
+let file = "f:/20131025/00263129-201403-25.xls"
 
-(* #r "f:/FSharp/Microsoft.Office.Interop.Excel.dll"; #r "f:/FSharp/OFFICE.DLL"; #r "util.dll"; #r "zenken.dll";; *)
+(* #r "f:/FSharp/OFFICE.DLL"; #r "f:/FSharp/Microsoft.Office.Interop.Excel.dll"; #r "util.dll"; #r "zenken.dll";; *)
+(* #r "OFFICE.DLL"; #r "Microsoft.Office.Interop.Excel.dll"; #r "util.dll"; #r "zenken.dll";; *)
 
 open System
 open System.IO
@@ -72,15 +73,26 @@ let rightDate (t:Zenken.t) =
 
 // let pprint (b:Zenken.board) =
 //     | On x | Off x ->
+let describeT = function
+    | On t | Off t -> Printf.printf "%s\n" (t.raw |> Util.Str._join ",")
+    | _ -> ignore()
+
+let describe truple =
+    let id, (zb:Zenken.board), sl = truple in
+    describeT zb
 
 [<EntryPoint>]
 let main (arg:string []) =
     printfn "%A" arg.[0];
-    // let file = arg.[0] in
-    // let content = contents file in
-    // let map = map content in
-    // printfn "マスタから削除すべきもの";
+    let file = arg.[0] in
+    let content = contents file in
+    let map = map content in
+    printfn "要チェック";
     // Seq.iter (printfn "%A") (odd_data_hiho content);
-    // printfn "除外者になっているが健診を受診したもの";
+    odd_data_hiho content
+    |> Seq.iter describe;
+    printfn "除外者になっているが健診を受診したもの";
     // Seq.iter (printfn "%A") (odd_data_zenken2 map);
+    odd_data_zenken2 map
+    |> Seq.iter describeT;
     0

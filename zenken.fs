@@ -9,7 +9,8 @@ module Cseq  = Util.CSVseq
 module Hosp  = Util.Hospital
 module Shibu = Util.Shibu
 
-let file = "f:/20130628/特定健診全件データ.csv"
+let file =
+    Util.File.returnExists ["d:/特定健診システム/特定健診CSV/特定健診全件データ.csv"; "f:/20130628/特定健診全件データ.csv"]
 
 type jnum  = | H of string | K of string
 type sex   = | M | F

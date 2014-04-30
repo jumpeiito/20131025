@@ -340,6 +340,13 @@ module File =
         in
         inner []
 
+    let rec returnExists = function
+        | [] -> failwith "returnExists"
+        | x::xs ->
+            if System.IO.File.Exists x
+            then x
+            else returnExists xs
+
 module CSV =
     type CHAR =
     | End | Quote | Return | Newline | Comma

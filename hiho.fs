@@ -2,8 +2,7 @@ module Hiho
 
 let file = "f:/20131025/00263129-201403-25.xls"
 
-(* #r "f:/FSharp/OFFICE.DLL"; #r "f:/FSharp/Microsoft.Office.Interop.Excel.dll"; #r "util.dll"; #r "zenken.dll";; *)
-(* #r "OFFICE.DLL"; #r "Microsoft.Office.Interop.Excel.dll"; #r "util.dll"; #r "zenken.dll";; *)
+(* #r "OFFICE.DLL"; #r "Microsoft.Office.Interop.Excel.dll"; #r "util.dll"; #r "zenken.dll"; #load "hiho.fs";; *)
 
 open System
 open System.IO
@@ -71,8 +70,6 @@ let rightDate (t:Zenken.t) =
     | RightOFF(d', d'') -> Printf.sprintf "%A,%A" d' d''
     | _ -> ","
 
-// let pprint (b:Zenken.board) =
-//     | On x | Off x ->
 let describeT = function
     | On t | Off t -> Printf.printf "%s\n" (t.raw |> Util.Str._join ",")
     | _ -> ignore()
@@ -88,11 +85,9 @@ let main (arg:string []) =
     let content = contents file in
     let map = map content in
     printfn "要チェック";
-    // Seq.iter (printfn "%A") (odd_data_hiho content);
     odd_data_hiho content
     |> Seq.iter describe;
     printfn "除外者になっているが健診を受診したもの";
-    // Seq.iter (printfn "%A") (odd_data_zenken2 map);
     odd_data_zenken2 map
     |> Seq.iter describeT;
     0

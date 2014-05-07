@@ -29,6 +29,7 @@ type t =
       hp:     hp;
       year:   int;
       id:     string;
+      kid:    string;
       flag:   flag;
       raw:    string list}
 
@@ -127,6 +128,7 @@ let make_line (line:string list) =
       hp     = make_hp line;
       year   = line.[8] |> int;
       id     = (int >> Printf.sprintf "%09d") line.[22];
+      kid    = (int >> Printf.sprintf "%09d") line.[23];
       flag   = make_flag line.[11];
       raw    = line;}
     |> judge
@@ -143,6 +145,10 @@ let fileToData file =
 
 let jnum (t:t) =
     match t.jnum with | H j | K j -> j
+
+let board_jnum = function
+    | On t | Off t -> jnum t
+    | _ -> failwith "board_jnum other"
 
 let jnum_shibu (t:t) =
     let f = (Util.Str.String_Take 5 >> Util.Str.take_right 2) in

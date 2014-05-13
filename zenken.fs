@@ -128,7 +128,7 @@ let make_line (line:string list) =
       hp     = make_hp line;
       year   = line.[8] |> int;
       id     = (int >> Printf.sprintf "%09d") line.[22];
-      kid    = (int >> Printf.sprintf "%09d") line.[23];
+      kid    = (int >> Printf.sprintf "%07d") line.[23];
       flag   = make_flag line.[11];
       raw    = line;}
     |> judge
@@ -149,6 +149,12 @@ let jnum (t:t) =
 let board_jnum = function
     | On t | Off t -> jnum t
     | _ -> failwith "board_jnum other"
+
+let kid (t:t) = t.kid
+
+let board_kid = function
+    | On t | Off t -> kid t
+    | _ -> failwith "board_kid other"
 
 let jnum_shibu (t:t) =
     let f = (Util.Str.String_Take 5 >> Util.Str.take_right 2) in

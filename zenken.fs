@@ -137,8 +137,29 @@ let filter = function
     | "年度末支部"::_ | [""] -> false
     | _ -> true
 
+let starter_filter = function
+    | Other -> false
+    | On x | Off x ->
+        match x.right with
+        | Cont | RightOFF ("", _) ->
+            if x.year >= 40 && x.year < 75 then true else false
+        | _ -> false
+
+let starter_filter_20 = function
+    | Other -> false
+    | On x | Off x ->
+        match x.right with
+        | Cont | RightOFF ("", _) ->
+            if x.year >= 20 && x.year < 75 then true else false
+        | _ -> false
+
+
 let data() =
     Util.CSVseq.read_filter_map file "sjis" make_line filter
+
+let data_on() =
+    data()
+    |> Seq.filter (function On _ -> true | _ -> false)
 
 let fileToData file =
     Util.CSVseq.read_filter_map file "sjis" make_line filter
@@ -160,14 +181,28 @@ let jnum_shibu (t:t) =
     let f = (Util.Str.String_Take 5 >> Util.Str.take_right 2) in
     f (jnum t)
 
-let makeMap f =
-    data()
+let makeMap_data data f =
+    data
     |> Seq.map (function | On x | Off x as b -> (f x, b) | Other -> failwith "makeMap")
     |> Map.ofSeq
+
+let makeMap f =
+    // data()
+    // |> Seq.map (function | On x | Off x as b -> (f x, b) | Other -> failwith "makeMap")
+    // |> Map.ofSeq
+    makeMap_data (data()) f
 
 let jmap() = makeMap jnum
 
 let imap() = makeMap (fun x -> x.id)
+
+let kmap() = makeMap (fun x -> x.kid)
+
+let jmap2 data = makeMap_data data jnum
+
+let imap2 data = makeMap_data data (fun x -> x.id)
+
+let kmap2 data = makeMap_data data (fun x -> x.kid)
 
 let idict() =
     let d = Dictionary<string, board>() in

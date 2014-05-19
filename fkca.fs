@@ -156,6 +156,12 @@ module R172 =
 
     let getBunkai = _get (fun x -> x.bunkai) "getBunkai"
 
+    let getJnum = function
+        | ON x | OFF x ->
+            match x.jnumber with
+            | H k | K k -> k
+        | _ -> failwith "getJnum"
+
     // ON, OFF, Ignore含めたもの
     let data() =
         let map = R167.map() in

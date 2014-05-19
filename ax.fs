@@ -19,8 +19,8 @@ let jgnmap() =
 let hoge() =
     data()
     |> Seq.iter (function
-                   | On x | Off x -> shibu_filter x
-                   | Other _ -> ignore())
+                 | On x | Off x -> shibu_filter x
+                 | Other _ -> ignore())
 
 let is_hojin_jnum str =
     let f = (Util.Str.String_Take 5 >> Util.Str.take_right 2) in
@@ -115,15 +115,58 @@ let kita () =
     |> Seq.filter (sfilter 15 "2610604080" dmap smap)
     |> Seq.iter (outputLine jgnmap dmap smap)
 
-let csvToData (csv:string) =
-    let map = Zenken.jmap() in
+let kita2 shibu hcode =
+    let dmap = Zenken.Dock.map() in
+    let smap = Zenken.SC.map() in
+    let jgnmap = jgnmap() in
+    Zenken.fileToData "f:/20130628/2012特定健診全件データ.csv"
+    |> Seq.filter (sfilter shibu hcode dmap smap)
+    |> Seq.iter (outputLine jgnmap dmap smap)
+
+let _csvToData (csv:string) (jmap:Map<string, board>) =
+    let map = jmap in
     Util.CSVseq.read csv "sjis"
     |> Seq.map (fun n -> map.[n.[0]])
+
+let csvToData (csv:string) =
+    Zenken.jmap()
+    |> _csvToData csv
+
+let csvToData2012 (csv:string) =
+    Zenken.jmap2 (Zenken.fileToData "f:/20130628/2012特定健診全件データ.csv")
+    |> _csvToData csv
 
 let hoku data =
     let dmap = Zenken.Dock.map() in
     let smap = Zenken.SC.map() in
     let jgnmap = jgnmap() in
     data
-    // |> Seq.filter (sfilter 15 "2610604080" dmap smap)
     |> Seq.iter (outputLine jgnmap dmap smap)
+
+let alist =
+    [(17, "2614102230")
+     (12, "2610307411")
+     (51, "2620700027")
+     (16, "2610803013")
+     (50, "2613100656")
+     (59, "2610903946")
+     (62, "2611202348")
+     (14, "2610500916")
+     (19, "2610903946")
+     (50, "2613000625")
+     (61, "2610903946")
+     (63, "2610903946")]
+
+let starter = function
+    | Other -> failwith "starter"
+    | On x | Off x as b ->
+        match x.jnum with
+        | H _ -> (0, b)
+        | K _ -> (1, b)
+
+let starter2013() =
+    data()
+    |> Seq.filter starter_filter
+    |> Seq.map starter
+    |> Seq.groupBy fst
+    |> Seq.map (fun (x, y) -> (x, Seq.length y))
